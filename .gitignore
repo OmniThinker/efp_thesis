@@ -1,0 +1,14 @@
+data/raw/ace2005/*
+data/*
+.virtual_documents
+cache/*
+notebooks/.ipynb_checkpoints/*
+certainty/__pycache__/*
+models/*
+wandb/*
+venv/
+results/
+eventgraphpreds/
+slurm_outs/
+Text2Event/
+figures/
