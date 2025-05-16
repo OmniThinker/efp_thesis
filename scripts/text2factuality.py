@@ -1,3 +1,7 @@
+"""
+This code is a modification of the Text2event code https://github.com/luyaojie/Text2Event 
+All usage of this code must reference Text2event.
+"""
 import sys
 import os
 sys.path.append(os.path.join(os.path.abspath(os.getcwd()), ".."))
@@ -122,9 +126,6 @@ def get_label_name_tree(label_name_list, tokenizer, end_symbol='<end>'):
     for typename in label_name_list:
         after_tokenized = tokenizer.encode(typename, add_special_tokens=False)
 
-        print(f"[DEBUG] Label: {typename}")
-        print(f"[DEBUG] Tokenized: {tokenizer.tokenize(typename)}")
-        print(f"[DEBUG] Token IDs: {after_tokenized}")
         label_tree[typename] = after_tokenized
 
     for _, sub_label_seq in label_tree.items():
@@ -563,9 +564,6 @@ def main(args):
         pairs = "("
 
         for i, event in enumerate(sample['events']):
-            # if event['event_genericity'] == 'Generic':
-            #     pair = "( " + "Other" + " " + event['trigger'][0][0] + ")"
-            # else:
             pair = "( " + event['event_modality'] + " " + event['trigger'][0][0] + ")"
             if i > 0:
                 pairs += " "
@@ -581,9 +579,6 @@ def main(args):
     for sample in dev:
         pairs = "("
         for i, event in enumerate(sample['events']):
-            # if event['event_genericity'] == 'Generic':
-            #     pair = "( " + "Other" + " " + event['trigger'][0][0] + ")"
-            # else:
             pair = "( " + event['event_modality'] + " " + event['trigger'][0][0] + ")"
 
             if i > 0:
@@ -688,7 +683,6 @@ def main(args):
         decoded_preds = tokenizer.batch_decode(
             preds, skip_special_tokens=False)
 
-        # Replace -100 in the labels as we can't decode them.
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
 
         def clean_str(x_str):

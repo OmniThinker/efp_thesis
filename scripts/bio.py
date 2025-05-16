@@ -142,7 +142,7 @@ def main(args):
     scale = scaling_factor
     weights = [1.0] * num_labels
     for label_id in range(num_labels):
-        count = label_counts.get(label_id, 1)  # avoid division by zero
+        count = label_counts.get(label_id, 1)
         base = total_count / (num_labels * count)
         weights[label_id] = scale * (base ** alpha)
 
@@ -363,7 +363,7 @@ def main(args):
         compute_metrics=compute_metrics,
         class_weights=class_weights,
         label_smoothing=label_smoothing,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]  # Stop after 3 epochs without improvement
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
     )
 
     trainer.train()

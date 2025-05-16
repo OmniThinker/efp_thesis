@@ -67,7 +67,7 @@ def get_full_text_embedding(text, tokenizer, model, device):
     offsets = tokens.pop("offset_mapping")
     tokens = tokens.to(device)
     with torch.no_grad():
-        text_embedding = model(**tokens).last_hidden_state.squeeze(0)  # (num_tokens, hidden_dim)
+        text_embedding = model(**tokens).last_hidden_state.squeeze(0)
     return (text_embedding.cpu(), offsets)
 
 
@@ -76,9 +76,9 @@ def get_token_indices(span, offsets):
     start_idx, end_idx = None, None
 
     for i, (start, end) in enumerate(offsets):
-        if start <= start_char < end:  # Find first token in span
+        if start <= start_char < end:
             start_idx = i
-        if start < end_char <= end:  # Find last token in span
+        if start < end_char <= end:
             end_idx = i
             break
 

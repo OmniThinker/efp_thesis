@@ -182,7 +182,7 @@ def main(args):
     scale = scaling_factor
     weights = [1.0] * num_labels
     for label_id in range(num_labels):
-        count = label_counts.get(label_id, 1)  # avoid division by zero
+        count = label_counts.get(label_id, 1)
         base = total_count / (num_labels * count)
         weights[label_id] = scale * (base ** alpha)
 
@@ -353,7 +353,7 @@ def main(args):
         compute_metrics=compute_metrics,
         class_weights=class_weights,
         label_smoothing=label_smoothing,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]  # Stop after 3 epochs without improvement
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
     )
 
     trainer.train()
@@ -373,8 +373,8 @@ def main(args):
         for batch in dataloader:
             batch = {k: v.to(device) for k, v in batch.items()}
             outputs = model(**batch)
-            logits = outputs.logits  # or whatever your model returns
-            all_logits.append(logits.cpu())  # Move to CPU for safety
+            logits = outputs.logits
+            all_logits.append(logits.cpu())
             all_labels.append(batch["labels"].cpu())
 
     all_logits = torch.cat(all_logits, dim=0)
@@ -447,7 +447,7 @@ def main(args):
         sample['undiscovered'] = undiscovered
         sample['spurious'] = spurious
 
-    # === Factuality Classifier ===
+    # Factuality Classifier
     fact_id2label = {0: "Other", 1: "Asserted"}
     fact_label2id = {"Other": 0, "Asserted": 1}
 
@@ -480,7 +480,7 @@ def main(args):
         warmup_ratio=0.1,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        num_train_epochs=epochs,  # epochs,
+        num_train_epochs=epochs,
         weight_decay=0.01,
     )
 
@@ -493,7 +493,7 @@ def main(args):
         data_collator=DataCollatorWithPadding(tokenizer_fact),
         compute_metrics=compute_metrics_factuality,
         class_weights=class_weights,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]  # Stop after 3 epochs without improvement
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
     )
 
     trainer_fact.train()

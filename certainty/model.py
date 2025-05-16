@@ -21,7 +21,7 @@ class GNNCertaintyPredictionModel(nn.Module):
         self.bert_model = bert_model
         self.bert_tokenizer = bert_tokenizer
 
-        self.gat1 = GATConv(input_dim, hidden_dim, heads=2, concat=True)  # 4 heads * hidden_dim
+        self.gat1 = GATConv(input_dim, hidden_dim, heads=2, concat=True)
 
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_dim * 4, output_dim)
@@ -35,7 +35,6 @@ class GNNCertaintyPredictionModel(nn.Module):
 
         batch_graph = Batch.from_data_list(batch_graphs)
 
-        # Move to device
         batch_graph.x = batch_graph.x.to(device)
         batch_graph.edge_index = batch_graph.edge_index.to(device)
         batch_graph.edge_attr = batch_graph.edge_attr.to(device)
@@ -95,20 +94,17 @@ class GNNCertaintyPredictionModel(nn.Module):
         tokens = self.bert_tokenizer(text, return_tensors="pt", padding=True, truncation=True, return_offsets_mapping=True, add_special_tokens=False)
         tokens = tokens.to(device)
         offsets = tokens.pop("offset_mapping")
-        text_embedding = self.bert_model(**tokens).last_hidden_state.squeeze(0)  # (num_tokens, hidden_dim)
+        text_embedding = self.bert_model(**tokens).last_hidden_state.squeeze(0)
         return (text_embedding, offsets)
 
     def get_token_indices(self, span, offsets):
-        """
-        To get the correct indices from the input ids/tokens from the character indices in the original text.
-        """
         start_char, end_char = map(int, span.split(":"))
         start_idx, end_idx = None, None
 
         for i, (start, end) in enumerate(offsets):
-            if start <= start_char < end:  # Find first token in span
+            if start <= start_char < end:
                 start_idx = i
-            if start < end_char <= end:  # Find last token in span
+            if start < end_char <= end:
                 end_idx = i
                 break
 
@@ -120,15 +116,12 @@ class GNN(nn.Module):
         super(GNN, self).__init__()
 
         self.gat1 = GATv2Conv(input_dim, hidden_dim, heads=2, concat=True, edge_dim=32)
-        self.proj_gnn = nn.Linear(hidden_dim * 2, output_dim)  # Adjusting for the GNN output
+        self.proj_gnn = nn.Linear(hidden_dim * 2, output_dim)
 
         self.dropout = nn.Dropout(dropout)
-        # self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, batch):
-        # Move to device
         x = self.gat1(batch.x, batch.edge_index, batch.edge_attr)
-        # x = self.bn1(x)
         x = F.relu(x)
         x = self.dropout(x)
 
@@ -158,7 +151,7 @@ class GNNCombined(nn.Module):
         gnn_out = self.gnn(batch)
 
         encoded_text = self.tokenizer(batch.text, padding=True, truncation=True, return_tensors="pt")
-        encoded_text = {k: v.to(next(self.bert.parameters()).device) for k, v in encoded_text.items()}  # Move to device
+        encoded_text = {k: v.to(next(self.bert.parameters()).device) for k, v in encoded_text.items()}
         bert_out = self.bert(**encoded_text).last_hidden_state[:, 0, :]
 
         combined = torch.cat([gnn_out, bert_out], dim=1).unsqueeze(1)
@@ -166,7 +159,7 @@ class GNNCombined(nn.Module):
 
         att, _ = self.attention(combined, combined, combined)
         att = att.squeeze(1)
-        #
+
         logits = self.fc_fusion(att)
 
         return logits

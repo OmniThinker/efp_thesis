@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import torch
 import random
 from torch.utils.data import DataLoader
-# import seaborn as sns
 from .types import EventSentence, EventType
 from .constants import RANDOM_SEED
 from datasets import Dataset
@@ -68,9 +67,9 @@ def get_token_indices(span, offsets):
     start_idx, end_idx = None, None
 
     for i, (start, end) in enumerate(offsets):
-        if start <= start_char < end:  # Find first token in span
+        if start <= start_char < end:
             start_idx = i
-        if start < end_char <= end:  # Find last token in span
+        if start < end_char <= end:
             end_idx = i
             break
 
